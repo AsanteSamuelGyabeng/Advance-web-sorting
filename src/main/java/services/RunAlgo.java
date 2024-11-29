@@ -5,7 +5,10 @@ public class RunAlgo {
 
         StudentDAO studentDAO = new StudentDAO();
 
-        System.out.println("\nSorted by Name:");
-        studentDAO.sortByName().forEach(System.out::println);
+        System.out.println("\nQuick Sorted by Name:");
+        studentDAO.quicksortByName().forEach(System.out::println);
+
+        System.out.println("\nHeap Sorted by Name:");
+        studentDAO.heapSortByName().forEach(System.out::println);
     }
 }
