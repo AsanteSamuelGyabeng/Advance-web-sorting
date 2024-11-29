@@ -116,6 +116,7 @@ public class HomeController extends HttpServlet {
                     (String) requestBody.get("grade")
             );
             // Update the student using the DAO
+            System.out.println(student);
             if (studentDAO.updateStudent(student)) {
                 out.print("{\"message\": \"Student updated successfully\"}");
             } else {
@@ -172,11 +173,10 @@ public class HomeController extends HttpServlet {
         studentJson.put("name", student.getName());
         studentJson.put("email", student.getEmail());
         studentJson.put("schoolName", student.getSchoolName());
-        studentJson.put("grade", student.getGrade());
+        studentJson.put("class", student.getGrade());
 
         JSONObject links = new JSONObject();
-        links.put("self", "/SpringMVC_war_exploded//students/" + student.getId());
-        links.put("update", "/SpringMVC_war_exploded/students/" + student.getId() + "/update");
+        links.put("operations", "/SpringMVC_war_exploded/students/" + student.getId());
         studentJson.put("_links", links);
         return studentJson;
     }
