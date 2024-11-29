@@ -108,7 +108,6 @@ public class HomeController extends HttpServlet {
         try {
             int studentId = Integer.parseInt(pathInfo.substring(1));
             JSONObject requestBody = parseRequestBody(request);
-
             Student student = new Student(
                     studentId,  //student ID,which comes from the path
                     (String) requestBody.get("name"),
@@ -116,7 +115,6 @@ public class HomeController extends HttpServlet {
                     (String) requestBody.get("schoolName"),
                     (String) requestBody.get("grade")
             );
-
             // Update the student using the DAO
             if (studentDAO.updateStudent(student)) {
                 out.print("{\"message\": \"Student updated successfully\"}");
@@ -177,8 +175,8 @@ public class HomeController extends HttpServlet {
         studentJson.put("grade", student.getGrade());
 
         JSONObject links = new JSONObject();
-        links.put("self", "/students/" + student.getId());
-        links.put("update", "/students/" + student.getId() + "/update");
+        links.put("self", "/SpringMVC_war_exploded//students/" + student.getId());
+        links.put("update", "/SpringMVC_war_exploded/students/" + student.getId() + "/update");
         studentJson.put("_links", links);
         return studentJson;
     }
