@@ -6,7 +6,7 @@ import java.util.List;
 
 public class RunAlgo {
 
-    public static String getSortedResults() {
+    public static void main(String[] args) {
         StudentDAO studentDAO = new StudentDAO();
         StringBuilder result = new StringBuilder();
 
@@ -40,6 +40,6 @@ public class RunAlgo {
             result.append(student.toString()).append("\n");
         }
 
-        return result.toString();
+        System.out.println(result);
     }
 }

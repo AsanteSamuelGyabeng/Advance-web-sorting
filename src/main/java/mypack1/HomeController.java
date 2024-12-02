@@ -1,24 +1,25 @@
 package mypack1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import model.Student;
-import org.json.JSONArray;
-import org.json.simple.JSONObject;
 import services.StudentDAO;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.annotation.WebServlet;
+import java.io.IOException;
+import java.io.PrintWriter;
 
-@WebServlet("/students/*")
+@WebServlet("/students")
 public class HomeController extends HttpServlet {
-    private StudentDAO studentDAO = new StudentDAO();
+    private final StudentDAO studentDAO = new StudentDAO();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * @doGet method for getting all students
+     * @doGet method to get the all and individual students
      * @param request
      * @param response
      * @throws ServletException
@@ -29,10 +30,11 @@ public class HomeController extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         String pathInfo = request.getPathInfo();
+
         if (pathInfo == null || pathInfo.equals("/")) {
-            JSONArray studentsArray = new JSONArray();
+            ArrayNode studentsArray = objectMapper.createArrayNode();
             for (Student student : studentDAO.getAllStudents()) {
-                studentsArray.put(createStudentJson(student));
+                studentsArray.add(createStudentJson(student));
             }
             out.print(studentsArray.toString());
         } else {
@@ -54,7 +56,7 @@ public class HomeController extends HttpServlet {
     }
 
     /**
-     * @doPost method for adding or registering newStudent
+     * @doPost method to post or add a student into the db (hashmap)
      * @param request
      * @param response
      * @throws ServletException
@@ -66,14 +68,14 @@ public class HomeController extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            JSONObject requestBody = parseRequestBody(request);
+            ObjectNode requestBody = parseRequestBody(request);
             int studentId = studentDAO.getNextId();
             Student student = new Student(
-                    studentId,  // autoId
-                    (String) requestBody.get("name"),
-                    (String) requestBody.get("email"),
-                    (String) requestBody.get("schoolName"),
-                    (String) requestBody.get("grade")
+                    studentId,
+                    requestBody.get("name").asText(),
+                    requestBody.get("email").asText(),
+                    requestBody.get("schoolName").asText(),
+                    requestBody.get("grade").asText()
             );
             studentDAO.createStudent(student);
             response.setStatus(HttpServletResponse.SC_CREATED);
@@ -82,13 +84,12 @@ public class HomeController extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("{\"error\": \"Invalid input\"}");
         }
-
         out.flush();
     }
 
 
     /**
-     * @doPut method to update a new student
+     * @doPut method used to update the student info
      * @param request
      * @param response
      * @throws ServletException
@@ -107,16 +108,15 @@ public class HomeController extends HttpServlet {
         }
         try {
             int studentId = Integer.parseInt(pathInfo.substring(1));
-            JSONObject requestBody = parseRequestBody(request);
+            ObjectNode requestBody = parseRequestBody(request);
             Student student = new Student(
-                    studentId,  //student ID,which comes from the path
-                    (String) requestBody.get("name"),
-                    (String) requestBody.get("email"),
-                    (String) requestBody.get("schoolName"),
-                    (String) requestBody.get("grade")
+                    studentId,
+                    requestBody.get("name").asText(),
+                    requestBody.get("email").asText(),
+                    requestBody.get("schoolName").asText(),
+                    requestBody.get("grade").asText()
             );
-            // Update the student using the DAO
-            System.out.println(student);
+
             if (studentDAO.updateStudent(student)) {
                 out.print("{\"message\": \"Student updated successfully\"}");
             } else {
@@ -133,8 +133,9 @@ public class HomeController extends HttpServlet {
         out.flush();
     }
 
+
     /**
-     * @doDelete method to delete a student by ID
+     * @delete method deletes student from the db(hashmap)
      * @param request
      * @param response
      * @throws ServletException
@@ -145,6 +146,7 @@ public class HomeController extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         String pathInfo = request.getPathInfo();
+
         if (pathInfo == null || pathInfo.equals("/")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("{\"error\": \"Student ID is required\"}");
@@ -167,27 +169,27 @@ public class HomeController extends HttpServlet {
     }
 
 
-    private JSONObject createStudentJson(Student student) {
-        JSONObject studentJson = new JSONObject();
+    /**
+     * @createStudentJson is a mutable JSON Library from Jackson that is use to populate the Json response
+     * @param student
+     * @return
+     */
+    private ObjectNode createStudentJson(Student student) {
+        ObjectNode studentJson = objectMapper.createObjectNode();
         studentJson.put("id", student.getId());
         studentJson.put("name", student.getName());
         studentJson.put("email", student.getEmail());
         studentJson.put("schoolName", student.getSchoolName());
         studentJson.put("class", student.getGrade());
 
-        JSONObject links = new JSONObject();
-        links.put("operations", "/SpringMVC_war_exploded/students/" + student.getId());
-        studentJson.put("_links", links);
+        ObjectNode links = objectMapper.createObjectNode();
+        links.put("operations", "/SpringMVC/students/" + student.getId());
+        studentJson.set("_links", links);
+
         return studentJson;
     }
 
-    private JSONObject parseRequestBody(HttpServletRequest request) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
-        }
-        return (JSONObject) org.json.simple.JSONValue.parse(sb.toString());
+    private ObjectNode parseRequestBody(HttpServletRequest request) throws IOException {
+        return (ObjectNode) objectMapper.readTree(request.getReader());
     }
 }

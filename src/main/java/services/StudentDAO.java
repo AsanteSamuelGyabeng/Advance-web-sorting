@@ -13,6 +13,9 @@ public class StudentDAO {
     private RadixSort radixSort = new RadixSort();
     private BucketSort bucketSort = new BucketSort();
 
+    /**
+     * preloaded sample student details
+     */
     static {
         studentMap.put(1, new Student(1, "John Akowah", "john@example.com", "Prempeh High School", "10"));
         studentMap.put(2, new Student(2, "Jennifer Owusu", "owusu@example.com", "Prempeh High School", "12"));
@@ -22,6 +25,11 @@ public class StudentDAO {
         studentMap.put(6, new Student(6, "Nicholas Owusu", "owusu@example.com", "Prempeh High School", "12"));
     }
 
+    /**
+     * @getStudent
+     * @param id
+     * @return
+     */
     public Student getStudent(int id) {
         return studentMap.get(id);
     }
@@ -30,12 +38,21 @@ public class StudentDAO {
         return studentMap.values();
     }
 
+    /**
+     *@createStudent actual logic that creates new creates or register new user
+     */
+
     public void createStudent(Student student) {
         int newId = getNextId();
         student.setId(newId);
         studentMap.put(newId, student);
     }
 
+    /**
+     * updateStudents logic do update a student
+     * @param student
+     * @return
+     */
     public boolean updateStudent(Student student) {
         if (studentMap.containsKey(student.getId())) {
             studentMap.put(student.getId(), student);
@@ -44,6 +61,11 @@ public class StudentDAO {
         return false;
     }
 
+    /**
+     * @deleteStudent deletes a student from the hashmap
+     * @param id
+     * @return
+     */
     public boolean deleteStudent(int id) {
         if (studentMap.containsKey(id)) {
             studentMap.remove(id);
