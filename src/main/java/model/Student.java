@@ -58,7 +58,6 @@ public class Student {
         this.grade = grade;
     }
 
-    // Optional: Override toString() method for better logging and debugging
     @Override
     public String toString() {
         return "Student{id=" + id +
