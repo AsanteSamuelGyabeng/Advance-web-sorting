@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet("/students")
+@WebServlet("/students/*")
 public class HomeController extends HttpServlet {
     private final StudentDAO studentDAO = new StudentDAO();
     private final ObjectMapper objectMapper = new ObjectMapper();
